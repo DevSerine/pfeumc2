@@ -16,42 +16,46 @@ $message = [];
 
 // Ajouter un thème
 if (isset($_POST['add_theme'])) {
-    $theme_name = mysqli_real_escape_string($conn, $_POST['theme_name']);
-    $insert_query = mysqli_query($conn, "INSERT INTO theme (nom) VALUES ('$theme_name')") or die('Query failed: ' . mysqli_error($conn));
-    if ($insert_query) {
+    $theme_name = $_POST['theme_name'];
+    $stmt = $conn->prepare("INSERT INTO theme (nom) VALUES (?)");
+    $stmt->bind_param('s', $theme_name);
+    if ($stmt->execute()) {
         $message[] = 'Thème ajouté avec succès.';
     } else {
         $message[] = 'Impossible d\'ajouter le thème.';
     }
+    $stmt->close();
 }
 
 // Modifier un thème
 if (isset($_POST['update_theme'])) {
     $theme_id = intval($_POST['theme_id']);
-    $new_theme_name = mysqli_real_escape_string($conn, $_POST['new_theme_name']);
+    $new_theme_name = $_POST['new_theme_name'];
 
-    // Mettre à jour le nom du thème
-    $update_theme_query = mysqli_query($conn, "UPDATE theme SET nom = '$new_theme_name' WHERE id = $theme_id") or die('Query failed: ' . mysqli_error($conn));
-
-    if ($update_theme_query) {
+    $stmt = $conn->prepare("UPDATE theme SET nom = ? WHERE id = ?");
+    $stmt->bind_param('si', $new_theme_name, $theme_id);
+    if ($stmt->execute()) {
         $message[] = 'Thème mis à jour avec succès.';
     } else {
         $message[] = 'Impossible de mettre à jour le thème.';
     }
+    $stmt->close();
 }
 
 // Supprimer un thème
 if (isset($_GET['delete'])) {
     $theme_id = intval($_GET['delete']);
-    $delete_query = mysqli_query($conn, "DELETE FROM theme WHERE id = $theme_id") or die('Query failed: ' . mysqli_error($conn));
-
-    if ($delete_query) {
+    $stmt = $conn->prepare("DELETE FROM theme WHERE id = ?");
+    $stmt->bind_param('i', $theme_id);
+    if ($stmt->execute()) {
         $message[] = 'Thème supprimé avec succès.';
     } else {
         $message[] = 'Impossible de supprimer le thème.';
     }
+    $stmt->close();
 }
-?><!doctypehtml><html lang=en><meta charset=UTF-8><meta content="IE=edge"http-equiv=X-UA-Compatible><meta content="width=device-width,initial-scale=1"name=viewport><title>Gestion des Thèmes</title><link href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css rel=stylesheet><link href=./assets/css/stylec.css rel=stylesheet><?php if (isset($message)): ?><?php foreach ($message as $msg): ?><div class=message><span><?= $msg; ?></span><i class="fa-times fas"onclick='this.parentElement.style.display="none"'></i></div><?php endforeach; ?><?php endif; ?><?php include 'header.php'; ?><div class=container><section><form action=""class=add-theme-form method=post><h3>Ajouter un nouveau thème</h3><input class=box name=theme_name placeholder="Nom du thème"required> <input class=btn name=add_theme type=submit value="Ajouter le thème"></form></section><section><form action=""class=update-theme-form method=post><h3>Modifier un thème</h3><select class=box name=theme_id required><option value="">Sélectionner un thème</option><?php
+?>
+<!doctypehtml><html lang=en><meta charset=UTF-8><meta content="IE=edge"http-equiv=X-UA-Compatible><meta content="width=device-width,initial-scale=1"name=viewport><title>Gestion des Thèmes</title><link href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css rel=stylesheet><link href=./assets/css/stylec.css rel=stylesheet><?php if (isset($message)): ?><?php foreach ($message as $msg): ?><div class=message><span><?= $msg; ?></span><i class="fa-times fas"onclick='this.parentElement.style.display="none"'></i></div><?php endforeach; ?><?php endif; ?><?php include 'header.php'; ?><div class=container><section><form action=""class=add-theme-form method=post><h3>Ajouter un nouveau thème</h3><input class=box name=theme_name placeholder="Nom du thème"required> <input class=btn name=add_theme type=submit value="Ajouter le thème"></form></section><section><form action=""class=update-theme-form method=post><h3>Modifier un thème</h3><select class=box name=theme_id required><option value="">Sélectionner un thème</option><?php
                 $themes_query = mysqli_query($conn, "SELECT * FROM theme");
                 while ($theme = mysqli_fetch_assoc($themes_query)) {
                     echo "<option value='" . htmlspecialchars($theme['id']) . "'>" . htmlspecialchars($theme['nom']) . "</option>";
