@@ -15,25 +15,26 @@ while ($theme = mysqli_fetch_assoc($themes_query)) {
 }
 
 if (isset($_POST['add_formation'])) {
-    $f_nom = mysqli_real_escape_string($conn, $_POST['f_nom']);
+
+    $f_nom = $_POST['f_nom'];
     $f_theme_id = intval($_POST['f_theme_id']);
-    $f_description = mysqli_real_escape_string($conn, $_POST['f_description']);
-    $f_duree = mysqli_real_escape_string($conn, $_POST['f_duree']);
-    $f_code = mysqli_real_escape_string($conn, $_POST['f_code']);
-    $f_statut = mysqli_real_escape_string($conn, $_POST['f_statut']);
-    $f_date_debut = mysqli_real_escape_string($conn, $_POST['f_date_debut']);
-    $f_date_fin = mysqli_real_escape_string($conn, $_POST['f_date_fin']);
+    $f_description = $_POST['f_description'];
+    $f_duree = $_POST['f_duree'];
+    $f_code = $_POST['f_code'];
+    $f_statut = $_POST['f_statut'];
+    $f_date_debut = $_POST['f_date_debut'];
+    $f_date_fin = $_POST['f_date_fin'];
 
     $f_image = $_FILES['f_image']['name'];
     $f_image_tmp_name = $_FILES['f_image']['tmp_name'];
     $f_image_folder = 'uploaded_img/' . $f_image;
 
     if (!empty($f_image) && move_uploaded_file($f_image_tmp_name, $f_image_folder)) {
-        $insert_query = mysqli_query($conn, "INSERT INTO formation(nom, theme_id, description, image, duree, code, statut, date_debut, date_fin, date_creation) 
-                                             VALUES('$f_nom', '$f_theme_id', '$f_description', '$f_image', '$f_duree', '$f_code', '$f_statut', '$f_date_debut', '$f_date_fin', NOW())")
-            or die('Query failed: ' . mysqli_error($conn));
+        $declar = $conn->prepare("INSERT INTO formation (nom, theme_id, description, image, duree, code, statut, date_debut, date_fin, date_creation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+        $declar->bind_param('sisssssss', $f_nom, $f_theme_id, $f_description, $f_image, $f_duree, $f_code, $f_statut, $f_date_debut, $f_date_fin);
+        $declar->execute();
 
-        if ($insert_query) {
+        if ($declar->affected_rows > 0) {
             $message[] = 'Formation ajoutée avec succès.';
         } else {
             $message[] = 'Impossible d\'ajouter la formation.';
@@ -45,9 +46,11 @@ if (isset($_POST['add_formation'])) {
 
 if (isset($_GET['delete'])) {
     $delete_id = intval($_GET['delete']);
-    $delete_query = mysqli_query($conn, "DELETE FROM formation WHERE id = $delete_id") or die('Query failed: ' . mysqli_error($conn));
+    $declar = $conn->prepare("DELETE FROM formation WHERE id = ?");
+    $declar->bind_param('i', $delete_id);
+    $declar->execute();
 
-    if ($delete_query) {
+    if ($declar->affected_rows > 0) {
         $message[] = 'Formation supprimée avec succès.';
     } else {
         $message[] = 'Impossible de supprimer la formation.';
@@ -58,14 +61,14 @@ if (isset($_GET['delete'])) {
 
 if (isset($_POST['update_formation'])) {
     $update_f_id = intval($_POST['update_f_id']);
-    $update_f_nom = mysqli_real_escape_string($conn, $_POST['update_f_nom']);
+    $update_f_nom = $_POST['update_f_nom'];
     $update_f_theme_id = intval($_POST['update_f_theme_id']);
-    $update_f_description = mysqli_real_escape_string($conn, $_POST['update_f_description']);
-    $update_f_duree = mysqli_real_escape_string($conn, $_POST['update_f_duree']);
-    $update_f_code = mysqli_real_escape_string($conn, $_POST['update_f_code']);
-    $update_f_statut = mysqli_real_escape_string($conn, $_POST['update_f_statut']);
-    $update_f_date_debut = mysqli_real_escape_string($conn, $_POST['update_f_date_debut']);
-    $update_f_date_fin = mysqli_real_escape_string($conn, $_POST['update_f_date_fin']);
+    $update_f_description = $_POST['update_f_description'];
+    $update_f_duree = $_POST['update_f_duree'];
+    $update_f_code = $_POST['update_f_code'];
+    $update_f_statut = $_POST['update_f_statut'];
+    $update_f_date_debut = $_POST['update_f_date_debut'];
+    $update_f_date_fin = $_POST['update_f_date_fin'];
 
     $update_f_image = $_FILES['update_f_image']['name'];
     $update_f_image_tmp_name = $_FILES['update_f_image']['tmp_name'];
@@ -73,32 +76,26 @@ if (isset($_POST['update_formation'])) {
 
     if (!empty($update_f_image)) {
         if (move_uploaded_file($update_f_image_tmp_name, $update_f_image_folder)) {
-            $image_query = ", image = '$update_f_image'";
+            $image_query = ", image = ?";
+            $params = [$update_f_nom, $update_f_theme_id, $update_f_description, $update_f_duree, $update_f_code, $update_f_statut, $update_f_date_debut, $update_f_date_fin, $update_f_image, $update_f_id];
+            $types = 'sisssssssi';
         } else {
             $message[] = 'Erreur lors du téléchargement de la nouvelle image.';
             $image_query = "";
+            $params = [$update_f_nom, $update_f_theme_id, $update_f_description, $update_f_duree, $update_f_code, $update_f_statut, $update_f_date_debut, $update_f_date_fin, $update_f_id];
+            $types = 'sissssssi';
         }
     } else {
         $image_query = "";
+        $params = [$update_f_nom, $update_f_theme_id, $update_f_description, $update_f_duree, $update_f_code, $update_f_statut, $update_f_date_debut, $update_f_date_fin, $update_f_id];
+        $types = 'sissssssi';
     }
 
-    $update_query = mysqli_query(
-        $conn,
-        "UPDATE formation 
-         SET nom = '$update_f_nom', 
-             theme_id = '$update_f_theme_id', 
-             description = '$update_f_description', 
-             duree = '$update_f_duree', 
-             code = '$update_f_code' ,
-             statut = '$update_f_statut',
-             date_debut = '$update_f_date_debut',
-             date_fin = '$update_f_date_fin'
-             $image_query 
-         WHERE id = $update_f_id"
-    )
-        or die('Query failed: ' . mysqli_error($conn));
+    $declar = $conn->prepare("UPDATE formation SET nom = ?, theme_id = ?, description = ?, duree = ?, code = ?, statut = ?, date_debut = ?, date_fin = ? $image_query WHERE id = ?");
+    $declar->bind_param($types, ...$params);
+    $declar->execute();
 
-    if ($update_query) {
+    if ($declar->affected_rows > 0) {
         $message[] = 'Formation mise à jour avec succès.';
     } else {
         $message[] = 'Impossible de mettre à jour la formation.';
