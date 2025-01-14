@@ -2,6 +2,10 @@
 include 'config.php';
 session_start();
 
+if (!isset($_COOKIE['cookies_enabled'])) {
+    setcookie('cookies_enabled', 'true', time() + (86400 * 30), "/"); // 86400 = 1 day
+}
+
 // Vérifier si le paramètre 'logout' est présent dans l'URL
 if (isset($_GET['logout'])) {
     // Détruire la session et rediriger vers la même page (ou vers une autre)
