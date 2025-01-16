@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 30, 2024 at 02:33 PM
+-- Generation Time: Jan 16, 2025 at 09:26 PM
 -- Server version: 8.3.0
 -- PHP Version: 8.2.18
 
@@ -20,6 +20,91 @@ SET time_zone = "+00:00";
 --
 -- Database: `umcbdd`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `admin`
+--
+
+DROP TABLE IF EXISTS `admin`;
+CREATE TABLE IF NOT EXISTS `admin` (
+  `id` int NOT NULL,
+  `date_now` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `admin`
+--
+
+INSERT INTO `admin` (`id`, `date_now`) VALUES
+(1, '2025-01-16 21:21:01');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `apprenant`
+--
+
+DROP TABLE IF EXISTS `apprenant`;
+CREATE TABLE IF NOT EXISTS `apprenant` (
+  `id` int NOT NULL,
+  `formation_id` int DEFAULT NULL,
+  `type_apprenant` enum('etudiant','employe','autre') DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `formation_id` (`formation_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `apprenant`
+--
+
+INSERT INTO `apprenant` (`id`, `formation_id`, `type_apprenant`) VALUES
+(3, 2, 'etudiant');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `entreprise`
+--
+
+DROP TABLE IF EXISTS `entreprise`;
+CREATE TABLE IF NOT EXISTS `entreprise` (
+  `id` int NOT NULL,
+  `formation_id` int DEFAULT NULL,
+  `nb_employes` int DEFAULT NULL,
+  `adresse` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `formation_id` (`formation_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `entreprise`
+--
+
+INSERT INTO `entreprise` (`id`, `formation_id`, `nb_employes`, `adresse`) VALUES
+(2, 1, 50, 'Cite Pons N 178 Jolie vue 2 Kouba, Alger, DZ');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `formateur`
+--
+
+DROP TABLE IF EXISTS `formateur`;
+CREATE TABLE IF NOT EXISTS `formateur` (
+  `id` int NOT NULL,
+  `cv` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `formateur`
+--
+
+INSERT INTO `formateur` (`id`, `cv`) VALUES
+(4, 'Rapport de Projet.pdf');
 
 -- --------------------------------------------------------
 
@@ -89,25 +174,24 @@ CREATE TABLE IF NOT EXISTS `utilisateur` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nom` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `numero_tel` varchar(15) DEFAULT NULL,
-  `type_utilisateur` varchar(100) NOT NULL,
-  `mot_de_passe` varchar(100) NOT NULL,
+  `mot_de_passe` varchar(255) NOT NULL,
+  `numero_tel` varchar(20) DEFAULT NULL,
   `image` varchar(255) DEFAULT NULL,
-  `formation_id` int DEFAULT NULL,
-  `cv` varchar(255) DEFAULT NULL,
+  `type_utilisateur` enum('entreprise','apprenant','formateur','admin') NOT NULL,
   `vue` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `fk_formation` (`formation_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `email` (`email`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `utilisateur`
 --
 
-INSERT INTO `utilisateur` (`id`, `nom`, `email`, `numero_tel`, `type_utilisateur`, `mot_de_passe`, `image`, `formation_id`, `cv`, `vue`) VALUES
-(1, 'UMC2', 'admin@gmail.com', '0560 00 55 24', 'admin', 'f7478165755c262cf8ac92119fabf588', '298965322_590769052746150_8670259412285492580_n.png', 0, '', 0),
-(2, 'Etud1', 'Etud1@gmail.com', '0561105178', 'etudiant', 'f7478165755c262cf8ac92119fabf588', '298965322_590769052746150_8670259412285492580_n.png', 4, '', 0),
-(3, 'Formateur', 'Formateur@gmail.com', '0561105178', 'formateur', 'f7478165755c262cf8ac92119fabf588', 'images.png', 0, '1719237018877_compressed.pdf', 0);
+INSERT INTO `utilisateur` (`id`, `nom`, `email`, `mot_de_passe`, `numero_tel`, `image`, `type_utilisateur`, `vue`) VALUES
+(1, 'UMC2', 'admin@gmail.com', 'f7478165755c262cf8ac92119fabf588', '0560 00 55 24', '298965322_590769052746150_8670259412285492580_n.png', 'admin', 0),
+(2, 'TestEntre', 'testentre@gmail.com', 'f7478165755c262cf8ac92119fabf588', '0561105178', '298965322_590769052746150_8670259412285492580_n.png', 'entreprise', 0),
+(3, 'testapp', 'testapp@gmail.com', 'f7478165755c262cf8ac92119fabf588', '0561105178', 'images.png', 'apprenant', 0),
+(4, 'testformateur', 'testforma@gmail.com', 'f7478165755c262cf8ac92119fabf588', '0561105178', 'images.png', 'formateur', 0);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
