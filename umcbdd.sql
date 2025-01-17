@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 16, 2025 at 09:26 PM
+-- Generation Time: Jan 17, 2025 at 10:23 AM
 -- Server version: 8.3.0
 -- PHP Version: 8.2.18
 
@@ -30,16 +30,16 @@ SET time_zone = "+00:00";
 DROP TABLE IF EXISTS `admin`;
 CREATE TABLE IF NOT EXISTS `admin` (
   `id` int NOT NULL,
-  `date_now` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_creation` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `admin`
 --
 
-INSERT INTO `admin` (`id`, `date_now`) VALUES
-(1, '2025-01-16 21:21:01');
+INSERT INTO `admin` (`id`, `date_creation`) VALUES
+(1, '2025-01-17 11:09:13');
 
 -- --------------------------------------------------------
 
@@ -51,17 +51,9 @@ DROP TABLE IF EXISTS `apprenant`;
 CREATE TABLE IF NOT EXISTS `apprenant` (
   `id` int NOT NULL,
   `formation_id` int DEFAULT NULL,
-  `type_apprenant` enum('etudiant','employe','autre') DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `formation_id` (`formation_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `apprenant`
---
-
-INSERT INTO `apprenant` (`id`, `formation_id`, `type_apprenant`) VALUES
-(3, 2, 'etudiant');
+  `type_apprenant` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -75,16 +67,8 @@ CREATE TABLE IF NOT EXISTS `entreprise` (
   `formation_id` int DEFAULT NULL,
   `nb_employes` int DEFAULT NULL,
   `adresse` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `formation_id` (`formation_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `entreprise`
---
-
-INSERT INTO `entreprise` (`id`, `formation_id`, `nb_employes`, `adresse`) VALUES
-(2, 1, 50, 'Cite Pons N 178 Jolie vue 2 Kouba, Alger, DZ');
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -97,14 +81,7 @@ CREATE TABLE IF NOT EXISTS `formateur` (
   `id` int NOT NULL,
   `cv` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `formateur`
---
-
-INSERT INTO `formateur` (`id`, `cv`) VALUES
-(4, 'Rapport de Projet.pdf');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -181,17 +158,42 @@ CREATE TABLE IF NOT EXISTS `utilisateur` (
   `vue` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `utilisateur`
 --
 
 INSERT INTO `utilisateur` (`id`, `nom`, `email`, `mot_de_passe`, `numero_tel`, `image`, `type_utilisateur`, `vue`) VALUES
-(1, 'UMC2', 'admin@gmail.com', 'f7478165755c262cf8ac92119fabf588', '0560 00 55 24', '298965322_590769052746150_8670259412285492580_n.png', 'admin', 0),
-(2, 'TestEntre', 'testentre@gmail.com', 'f7478165755c262cf8ac92119fabf588', '0561105178', '298965322_590769052746150_8670259412285492580_n.png', 'entreprise', 0),
-(3, 'testapp', 'testapp@gmail.com', 'f7478165755c262cf8ac92119fabf588', '0561105178', 'images.png', 'apprenant', 0),
-(4, 'testformateur', 'testforma@gmail.com', 'f7478165755c262cf8ac92119fabf588', '0561105178', 'images.png', 'formateur', 0);
+(1, 'test', 'admin@gmail.com', 'f7478165755c262cf8ac92119fabf588', '0561105178', '67862e659a923_images.png', 'admin', 0);
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `admin`
+--
+ALTER TABLE `admin`
+  ADD CONSTRAINT `fk_admin_utilisateur` FOREIGN KEY (`id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `apprenant`
+--
+ALTER TABLE `apprenant`
+  ADD CONSTRAINT `fk_apprenant_utilisateur` FOREIGN KEY (`id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `entreprise`
+--
+ALTER TABLE `entreprise`
+  ADD CONSTRAINT `fk_entreprise_utilisateur` FOREIGN KEY (`id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `formateur`
+--
+ALTER TABLE `formateur`
+  ADD CONSTRAINT `fk_formateur_utilisateur` FOREIGN KEY (`id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
