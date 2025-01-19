@@ -50,17 +50,17 @@ if (isset($_POST['submit'])) {
 
             // Insertion des données dans les tables spécifiques
             if ($role == 'entreprise') {
-               $stmt = $conn->prepare("INSERT INTO `entreprise`(id, formation_id, nb_employes, adresse) VALUES(?, ?, ?, ?)");
+               $stmt = $conn->prepare("INSERT INTO `entreprise`(id_entreprise, formation_id, nb_employes, adresse) VALUES(?, ?, ?, ?)");
                $stmt->bind_param("iiis", $user_id, $formation_id, $nb_employes, $adresse);
             } elseif ($role == 'apprenant') {
-               $stmt = $conn->prepare("INSERT INTO `apprenant`(id, formation_id, type_apprenant) VALUES(?, ?, ?)");
+               $stmt = $conn->prepare("INSERT INTO `apprenant`(id_apprenant, formation_id, type_apprenant) VALUES(?, ?, ?)");
                $stmt->bind_param("iis", $user_id, $formation_id, $type_apprenant);
             } elseif ($role == 'formateur') {
-               $stmt = $conn->prepare("INSERT INTO `formateur`(id, cv) VALUES(?, ?)");
+               $stmt = $conn->prepare("INSERT INTO `formateur`(id_formateur, cv) VALUES(?, ?)");
                $stmt->bind_param("is", $user_id, $cv);
                move_uploaded_file($cv_tmp_name, $cv_folder);
             } elseif ($role == 'admin') {
-               $stmt = $conn->prepare("INSERT INTO `admin`(id) VALUES(?)");
+               $stmt = $conn->prepare("INSERT INTO `admin`(id_admin) VALUES(?)");
                $stmt->bind_param("i", $user_id);
             }
 
@@ -93,18 +93,161 @@ if (isset($_POST['submit'])) {
       }
    }
 }
-?><!doctypehtml><html lang=fr><meta charset=UTF-8><meta content="IE=edge"http-equiv=X-UA-Compatible><meta content="width=device-width,initial-scale=1"name=viewport><title>Inscription</title><link href=./assets/css/stylel.css rel=stylesheet><div class=form-container><form action=""enctype=multipart/form-data id=registerForm method=post><h3>Inscrivez-vous maintenant</h3><?php
+?>
+<!doctypehtml>
+<html lang=fr>
+<meta charset=UTF-8>
+<meta content="IE=edge" http-equiv=X-UA-Compatible>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<title>Inscription</title>
+<link href=./assets/css/stylel.css rel=stylesheet>
+<div class=form-container>
+   <form action="" enctype=multipart/form-data id=registerForm method=post>
+      <h3>Inscrivez-vous maintenant</h3>
+      <?php
       // Affichage des messages de succès ou d'erreur
       if (isset($message)) {
          foreach ($message as $msg) {
             echo '<div class="message"><span class="close-btn" onclick="this.parentElement.style.display=\'none\';">&times;</span>' . htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') . '</div>';
          }
       }
-      ?><input class=box name=name required placeholder="Entrez votre nom"> <input class=box name=email type=email required placeholder="Entrez votre email"> <input class=box name=password type=password required placeholder="Entrez votre mot de passe"> <input class=box name=cpassword type=password required placeholder="Confirmez votre mot de passe"> <input class=box name=telephone required placeholder="Entrez votre numéro de téléphone"> <label for=image>Télécharger votre photo :</label> <input class=box name=image type=file required accept="image/jpg, image/jpeg, image/png, image/svg+xml"> <select class=box id=roleSelect name=role onchange=handleRoleChange() required><option value="">Sélectionner un rôle<option value=entreprise>Entreprise<option value=apprenant>Apprenant<option value=formateur>Formateur<option value=interne>Interne</select><div class=hidden id=adresseInput><label for=adresse>Adresse :</label> <input class=box name=adresse id=adresse></div><div class=hidden id=typeApprenantInput><label for=type_apprenant>Type d'apprenant :</label> <select class=box id=type_apprenant name=type_apprenant><option value="">Sélectionner un type<option value=etudiant>Étudiant<option value=employe>Employé<option value=autre>Autre</select></div><div class=hidden id=formationSelect><select class=box id=formation name=formation><option value="">Sélectionner une formation</option><?php
+      ?>
+      <input class=box name=name required placeholder="Entrez votre nom">
+      <input class=box name=email required placeholder="Entrez votre email" type=email>
+      <input class=box name=password required placeholder="Entrez votre mot de passe" type=password>
+      <input class=box name=cpassword required placeholder="Confirmez votre mot de passe" type=password>
+      <input class=box name=telephone required placeholder="Entrez votre numéro de téléphone">
+      <label for=image>Télécharger votre photo :</label>
+      <input class=box name=image required type=file accept="image/jpg, image/jpeg, image/png, image/svg+xml">
+      <select class=box id=roleSelect name=role onchange=handleRoleChange() required>
+         <option value="">Sélectionner un rôle</option>
+         <option value=entreprise>Entreprise</option>
+         <option value=apprenant>Apprenant</option>
+         <option value=formateur>Formateur</option>
+         <option value=interne>Interne</option>
+      </select>
+      <div class=hidden id=adresseInput>
+         <label for=adresse>Adresse :</label>
+         <input class=box name=adresse id=adresse>
+      </div>
+      <div class=hidden id=typeApprenantInput>
+         <label for=type_apprenant>Type d'apprenant :</label>
+         <select class=box name=type_apprenant id=type_apprenant>
+            <option value="">Sélectionner un type</option>
+            <option value=etudiant>Étudiant</option>
+            <option value=employe>Employé</option>
+            <option value=autre>Autre</option>
+         </select>
+      </div>
+      <div class=hidden id=formationSelect>
+         <select class=box id=formation name=formation>
+            <option value="">Sélectionner une formation</option>
+            <?php
             $stmt = $conn->prepare("SELECT * FROM formation");
             $stmt->execute();
             $result = $stmt->get_result();
             while ($formation = $result->fetch_assoc()) {
                echo '<option value="' . htmlspecialchars($formation['id']) . '">' . htmlspecialchars($formation['nom']) . '</option>';
             }
-            ?></select></div><div class=hidden id=cvInput><label for=cv>Télécharger votre CV :</label> <input class=box name=cv type=file accept=application/pdf id=cv></div><div class=hidden id=nbEmployesInput><label for=nb_employes>Nombre d'employés :</label> <input class=box name=nb_employes type=number id=nb_employes></div><input class=btn name=submit type=submit value="S'inscrire"><p>Vous avez déjà un compte ? <a href=login.php>Connectez-vous</a></form></div><script>function handleRoleChange(){var e=document.getElementById("roleSelect").value,t=document.getElementById("formationSelect"),d=document.getElementById("cvInput"),s=document.getElementById("nbEmployesInput"),i=document.getElementById("typeApprenantInput"),r=document.getElementById("adresseInput"),n=document.getElementById("formation"),a=document.getElementById("cv"),u=document.getElementById("nb_employes"),m=document.getElementById("type_apprenant"),l=document.getElementById("adresse");t.classList.add("hidden"),d.classList.add("hidden"),s.classList.add("hidden"),i.classList.add("hidden"),r.classList.add("hidden"),n.classList.add("hidden"),a.classList.add("hidden"),u.classList.add("hidden"),m.classList.add("hidden"),l.classList.add("hidden"),n.removeAttribute("required"),a.removeAttribute("required"),u.removeAttribute("required"),m.removeAttribute("required"),l.removeAttribute("required"),"apprenant"===e?(i.classList.remove("hidden"),m.classList.remove("hidden"),m.setAttribute("required","required"),t.classList.remove("hidden"),n.classList.remove("hidden"),n.setAttribute("required","required")):"formateur"===e?(d.classList.remove("hidden"),a.classList.remove("hidden"),a.setAttribute("required","required")):"entreprise"===e&&(r.classList.remove("hidden"),l.classList.remove("hidden"),l.setAttribute("required","required"),t.classList.remove("hidden"),n.classList.remove("hidden"),n.setAttribute("required","required"),s.classList.remove("hidden"),u.classList.remove("hidden"),u.setAttribute("required","required"))}document.addEventListener("DOMContentLoaded",function(){handleRoleChange()})</script><style>.hidden{display:none}.message{text-align:center;font-size:24px;color:green;margin-top:20px;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background-color:#f0f0f0;padding:20px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,.1)}.close-btn{position:absolute;top:10px;right:10px;font-size:20px;cursor:pointer}</style>
+            ?>
+         </select>
+      </div>
+      <div class=hidden id=cvInput>
+         <label for=cv>Télécharger votre CV :</label>
+         <input class=box name=cv type=file accept=application/pdf id=cv>
+      </div>
+      <div class=hidden id=nbEmployesInput>
+         <label for=nb_employes>Nombre d'employés :</label>
+         <input class=box name=nb_employes type=number id=nb_employes>
+      </div>
+      <input class=btn name=submit type=submit value="S'inscrire">
+      <p>Vous avez déjà un compte ? <a href=login.php>Connectez-vous</a></p>
+   </form>
+</div>
+<script>
+   function handleRoleChange() {
+      var role = document.getElementById("roleSelect").value;
+      var formationSelect = document.getElementById("formationSelect");
+      var cvInput = document.getElementById("cvInput");
+      var nbEmployesInput = document.getElementById("nbEmployesInput");
+      var typeApprenantInput = document.getElementById("typeApprenantInput");
+      var adresseInput = document.getElementById("adresseInput");
+      var formation = document.getElementById("formation");
+      var cv = document.getElementById("cv");
+      var nb_employes = document.getElementById("nb_employes");
+      var type_apprenant = document.getElementById("type_apprenant");
+      var adresse = document.getElementById("adresse");
+
+      formationSelect.classList.add("hidden");
+      cvInput.classList.add("hidden");
+      nbEmployesInput.classList.add("hidden");
+      typeApprenantInput.classList.add("hidden");
+      adresseInput.classList.add("hidden");
+      formation.classList.add("hidden");
+      cv.classList.add("hidden");
+      nb_employes.classList.add("hidden");
+      type_apprenant.classList.add("hidden");
+      adresse.classList.add("hidden");
+
+      formation.removeAttribute("required");
+      cv.removeAttribute("required");
+      nb_employes.removeAttribute("required");
+      type_apprenant.removeAttribute("required");
+      adresse.removeAttribute("required");
+
+      if (role === "apprenant") {
+         typeApprenantInput.classList.remove("hidden");
+         type_apprenant.classList.remove("hidden");
+         type_apprenant.setAttribute("required", "required");
+         formationSelect.classList.remove("hidden");
+         formation.classList.remove("hidden");
+         formation.setAttribute("required", "required");
+      } else if (role === "formateur") {
+         cvInput.classList.remove("hidden");
+         cv.classList.remove("hidden");
+         cv.setAttribute("required", "required");
+      } else if (role === "entreprise") {
+         adresseInput.classList.remove("hidden");
+         adresse.classList.remove("hidden");
+         adresse.setAttribute("required", "required");
+         formationSelect.classList.remove("hidden");
+         formation.classList.remove("hidden");
+         formation.setAttribute("required", "required");
+         nbEmployesInput.classList.remove("hidden");
+         nb_employes.classList.remove("hidden");
+         nb_employes.setAttribute("required", "required");
+      }
+   }
+
+   document.addEventListener("DOMContentLoaded", function () {
+      handleRoleChange();
+   });
+</script>
+<style>
+   .hidden {
+      display: none
+   }
+
+   .message {
+      text-align: center;
+      font-size: 24px;
+      color: green;
+      margin-top: 20px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #f0f0f0;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, .1)
+   }
+
+   .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 20px;
+      cursor: pointer
+   }
+</style>
