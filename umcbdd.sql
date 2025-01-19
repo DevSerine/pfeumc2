@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 17, 2025 at 10:23 AM
+-- Generation Time: Jan 19, 2025 at 09:25 PM
 -- Server version: 8.3.0
 -- PHP Version: 8.2.18
 
@@ -29,17 +29,17 @@ SET time_zone = "+00:00";
 
 DROP TABLE IF EXISTS `admin`;
 CREATE TABLE IF NOT EXISTS `admin` (
-  `id` int NOT NULL,
+  `id_admin` int NOT NULL,
   `date_creation` datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id_admin`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `admin`
 --
 
-INSERT INTO `admin` (`id`, `date_creation`) VALUES
-(1, '2025-01-17 11:09:13');
+INSERT INTO `admin` (`id_admin`, `date_creation`) VALUES
+(1, '2025-01-18 23:04:57');
 
 -- --------------------------------------------------------
 
@@ -49,10 +49,10 @@ INSERT INTO `admin` (`id`, `date_creation`) VALUES
 
 DROP TABLE IF EXISTS `apprenant`;
 CREATE TABLE IF NOT EXISTS `apprenant` (
-  `id` int NOT NULL,
+  `id_apprenant` int NOT NULL,
   `formation_id` int DEFAULT NULL,
   `type_apprenant` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id_apprenant`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -63,11 +63,11 @@ CREATE TABLE IF NOT EXISTS `apprenant` (
 
 DROP TABLE IF EXISTS `entreprise`;
 CREATE TABLE IF NOT EXISTS `entreprise` (
-  `id` int NOT NULL,
+  `id_entreprise` int NOT NULL,
   `formation_id` int DEFAULT NULL,
   `nb_employes` int DEFAULT NULL,
   `adresse` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id_entreprise`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -78,9 +78,9 @@ CREATE TABLE IF NOT EXISTS `entreprise` (
 
 DROP TABLE IF EXISTS `formateur`;
 CREATE TABLE IF NOT EXISTS `formateur` (
-  `id` int NOT NULL,
+  `id_formateur` int NOT NULL,
   `cv` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id_formateur`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -158,14 +158,14 @@ CREATE TABLE IF NOT EXISTS `utilisateur` (
   `vue` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `utilisateur`
 --
 
 INSERT INTO `utilisateur` (`id`, `nom`, `email`, `mot_de_passe`, `numero_tel`, `image`, `type_utilisateur`, `vue`) VALUES
-(1, 'test', 'admin@gmail.com', 'f7478165755c262cf8ac92119fabf588', '0561105178', '67862e659a923_images.png', 'admin', 0);
+(1, 'Serine Boussaid', 'admin@gmail.com', 'f7478165755c262cf8ac92119fabf588', '0561105178', 'images.png', 'admin', 0);
 
 --
 -- Constraints for dumped tables
@@ -175,25 +175,25 @@ INSERT INTO `utilisateur` (`id`, `nom`, `email`, `mot_de_passe`, `numero_tel`, `
 -- Constraints for table `admin`
 --
 ALTER TABLE `admin`
-  ADD CONSTRAINT `fk_admin_utilisateur` FOREIGN KEY (`id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_admin_utilisateur` FOREIGN KEY (`id_admin`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `apprenant`
 --
 ALTER TABLE `apprenant`
-  ADD CONSTRAINT `fk_apprenant_utilisateur` FOREIGN KEY (`id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_apprenant_utilisateur` FOREIGN KEY (`id_apprenant`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `entreprise`
 --
 ALTER TABLE `entreprise`
-  ADD CONSTRAINT `fk_entreprise_utilisateur` FOREIGN KEY (`id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_entreprise_utilisateur` FOREIGN KEY (`id_entreprise`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `formateur`
 --
 ALTER TABLE `formateur`
-  ADD CONSTRAINT `fk_formateur_utilisateur` FOREIGN KEY (`id`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_formateur_utilisateur` FOREIGN KEY (`id_formateur`) REFERENCES `utilisateur` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
